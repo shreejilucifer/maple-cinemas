@@ -54,7 +54,7 @@ export default class AllMovies extends Component {
           <Text style={styles.allMoviesText}>
             All Movies
         </Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={this.props.onViewAll}>
             <Text style={styles.viewallText}>View all</Text>
           </TouchableOpacity>
         </View>

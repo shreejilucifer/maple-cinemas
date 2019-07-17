@@ -11,6 +11,8 @@ import ForgetPassScreen from './src/Pages/ForgetPassScreen';
 
 import HomeScreen from './src/Pages/HomeScreen';
 import MovieScreen from './src/Pages/MovieScreen';
+import MovieSeatBookingScreen from './src/Pages/MovieSeatBookingScreen';
+import AllMovieScreen from './src/Pages/AllMovieScreen';
 
 const AuthStack = createStackNavigator(
   {
@@ -27,9 +29,11 @@ const AppStack = createStackNavigator(
   {
     Home: HomeScreen,
     Movie: MovieScreen,
+    MovieSeatBooking: MovieSeatBookingScreen,
+    AllMovies: AllMovieScreen
   },
   {
-    initialRouteName: 'Movie'
+    initialRouteName: 'MovieSeatBooking'
   });
 
 export default createAppContainer(

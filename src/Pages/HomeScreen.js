@@ -20,10 +20,14 @@ export default class HomeScreen extends Component {
           <Navbar
           title="Now Showing"
           goBack={()=>{
-            console.log("Go Back")
+            this.props.navigation.navigate('Login');
           }} />
-          <MovieCarousel />
-          <AllMovies />
+          <MovieCarousel navigation={this.props.navigation} />
+          <AllMovies
+            onViewAll={()=>{
+              this.props.navigation.navigate('AllMovies');
+            }}
+          />
         </View>
       </Page>
     )

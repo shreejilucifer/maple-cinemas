@@ -1,18 +1,16 @@
 import React, { PureComponent } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
 import Page from '../Components/Page';
-import backbtn from '../../assets/backbtn.webp';
 import star from '../../assets/star.webp';
 import duration from '../../assets/duration.webp';
 import imax from '../../assets/imax.webp';
+import nextbluebtn from '../../assets/nextbluebtn.webp';
+import HorizontalDatePicker from '@logisticinfotech/react-native-horizontal-date-picker';
+import BackBtn from '../Components/BackBtn';
 
-const BackBtn = (props) => (
-    <View style={styles.backbtnContainer}>
-      <TouchableOpacity onPress={props.onBack}>
-        <Image source={backbtn} style={styles.backbtn} />
-      </TouchableOpacity>
-    </View>
-  );
+const { width: viewportWidth, height: viewportHeight } = Dimensions.get(
+  "window"
+);
 
 const MovieDetails = props => (
   <View style={styles.movieDetailsContainer}>
@@ -48,18 +46,25 @@ export default class MovieScreen extends PureComponent {
   };
 
   state = {
+    selectedDate: "",
+    selectedTime: "",
     img: 'http://cdn.collider.com/wp-content/uploads/2018/04/ant-man-and-the-wasp-poster.jpg'
   }
 
   render() {
     return (
       <Page>
-        <View style={styles.container}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={{ alignItems: "center" }}
+        >
           <Image
             source={{ uri: this.state.img }}
             style={styles.moviePoster}
           />
-          <BackBtn onBack={() => console.log("Hello")} />
+          <BackBtn onBack={() => {
+            this.props.navigation.navigate('Home');
+          }} />
           <MovieDetails
             title="Ant Man and the Wasp"
             stars="4.9"
@@ -67,6 +72,36 @@ export default class MovieScreen extends PureComponent {
             imax="Imax3D"
             synopsis="Scott Lang is grappling with the consequences of his choices as both a superhero and a father. Approached by Hope van Dyne and Dr. Hank Pym, Lang must once again don …"
           />
+          <View>
+            <Text>Selected Date: {this.state.selectedDate} </Text>
+            <Text>Selected Time: {this.state.selectedTime} </Text>
+          </View>
+          <View style={styles.datepickerContainer}>
+            <HorizontalDatePicker
+              pickerType={"date"}
+              onDateSelected={date => {
+                this.setState({ selectedDate: date });
+              }}
+            />
+          </View>
+          <View style={styles.datepickerContainer}>
+            <Text style={styles.cinemaName}>
+              Sathyam Cinemas: Royapettah
+            </Text>
+            <HorizontalDatePicker
+              pickerType={"time"}
+              onTimeSelected={time => {
+                this.setState({ selectedTime: time });
+              }}
+            />
+          </View>
+        </ScrollView>
+        <View style={styles.nextbtn}>
+          <TouchableOpacity onPress={()=>{
+            this.props.navigation.navigate('MovieSeatBooking');
+          }}>
+            <Image source={nextbluebtn} />
+          </TouchableOpacity>
         </View>
       </Page>
     );
@@ -76,20 +111,7 @@ export default class MovieScreen extends PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center"
-  },
-  backbtnContainer: {
-    marginTop: 35,
-    paddingLeft: 20,
-    paddingRight: 20,
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center"
-  },
-  backbtn: {
-    height: 17,
-    width: 22
+    height: viewportHeight
   },
   moviePoster: {
     width: "100%",
@@ -98,7 +120,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     opacity: 0.5,
     borderBottomLeftRadius: 50,
-    borderBottomRightRadius: 50
+    borderBottomRightRadius: 50,
+    backgroundColor: "#000"
   },
   movieDetailsContainer: {
     width: "80%",
@@ -106,10 +129,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 60,
     borderRadius: 10,
-    backgroundColor: "#ffffff",
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#c4c9df'
+    backgroundColor: "#fff",
+    marginTop: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 20,
+    paddingBottom: 20,
+    borderWidth: 1,
+    borderColor: "#5880ec"
   },
   movieDetailsTitleContainer: {
     flexDirection: "column",
@@ -176,5 +203,22 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat Semi Bold",
     fontSize: 20,
     fontWeight: "600"
+  },
+  datepickerContainer: {
+    marginTop: 20
+  },
+  cinemaName: {
+    color: "#5c5c5c",
+    fontFamily: "Montserrat Medium",
+    fontSize: 13,
+    fontWeight: "500",
+    marginLeft: 10,
+    marginBottom: 5
+  },
+  nextbtn: {
+    position: 'absolute',
+    zIndex: 2,
+    marginTop: viewportHeight - 100,
+    right: 5,
   }
 });

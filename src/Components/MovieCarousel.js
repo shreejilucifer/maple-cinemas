@@ -16,6 +16,11 @@ const itemWidth = slideWidth + itemHorizontalMargin * 2;
 
 export default class MovieCarousel extends PureComponent {
 
+  constructor(props) {
+    super(props);
+    this._renderItem = this._renderItem.bind(this);
+  }
+
   state = {
     entries: [{
       img: 'http://cdn.collider.com/wp-content/uploads/2018/04/ant-man-and-the-wasp-poster.jpg'
@@ -23,12 +28,15 @@ export default class MovieCarousel extends PureComponent {
         img: 'https://images-na.ssl-images-amazon.com/images/I/A1t8xCe9jwL._SY679_.jpg'
     }]
   }
+
   _renderItem({ item, index }) {
     return (
       <View>
         <TouchableOpacity
           activeOpacity={0.9}
-          onPress={()=>console.log("Hello")}
+          onPress={()=>{
+            this.props.navigation.navigate('Movie');
+          }}
         >
           <Image style={styles.movieImage} source={{ uri: item.img }} />
         </TouchableOpacity>
