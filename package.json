@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@logisticinfotech/react-native-horizontal-date-picker": "^1.0.15",
+    "axios": "^0.19.0",
     "expo": "^33.0.0",
     "expo-font": "~5.0.1",
     "expo-linear-gradient": "~5.0.1",
@@ -17,6 +18,7 @@
     "react": "16.8.3",
     "react-dom": "^16.8.6",
     "react-native": "https://github.com/expo/react-native/archive/sdk-33.0.0.tar.gz",
+    "react-native-loader": "^1.2.1",
     "react-native-snap-carousel": "^3.8.0",
     "react-native-web": "^0.11.4",
     "react-navigation": "^3.11.0"

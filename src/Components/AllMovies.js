@@ -3,48 +3,20 @@ import { Text, View, StyleSheet, TouchableOpacity, FlatList, Image } from 'react
 
 export default class AllMovies extends Component {
 
-  _keyExtractor = (item, index) => item.id;
+  _keyExtractor = (item, index) => item.tmsId;
 
   _renderItem = ({ item }) => (
-    <View key={item.id} style={styles.singleMovieContainer}>
-      <Image source={{uri: item.img }} style={styles.movieImage} />
-      <Text style={styles.movieName}>{item.name}</Text>
+    <View key={item.tmsId} style={styles.singleMovieContainer}>
+      <Image
+        source={{uri: "http://movies.tmsimg.com/" + item.preferredImage.uri + api }}
+        style={styles.movieImage} />
+      <Text style={styles.movieName}>{item.title}</Text>
       <Text style={styles.movieDuration}>{item.duration}</Text>
     </View>
   );
 
   state = {
-    data: [{
-      id: '1',
-      img: 'http://cdn.collider.com/wp-content/uploads/2018/04/ant-man-and-the-wasp-poster.jpg',
-      name: 'Jurassic World',
-      duration: '1h 12m'
-    }, {
-        id: '2',
-        img: 'https://images-na.ssl-images-amazon.com/images/I/A1t8xCe9jwL._SY679_.jpg',
-        name: 'Jurassic World',
-        duration: '1h 12m'
-      }, {
-        id: '3',
-        img: 'http://cdn.collider.com/wp-content/uploads/2018/04/ant-man-and-the-wasp-poster.jpg',
-        name: 'Jurassic World',
-        duration: '1h 12m'
-      }, {
-        id: '4',
-        img: 'https://images-na.ssl-images-amazon.com/images/I/A1t8xCe9jwL._SY679_.jpg',
-        name: 'Jurassic World',
-        duration: '1h 12m'
-      }, {
-        id: '5',
-        img: 'http://cdn.collider.com/wp-content/uploads/2018/04/ant-man-and-the-wasp-poster.jpg',
-        name: 'Jurassic World',
-        duration: '1h 12m'
-      }, {
-        id: '6',
-        img: 'https://images-na.ssl-images-amazon.com/images/I/A1t8xCe9jwL._SY679_.jpg',
-        name: 'Jurassic World',
-        duration: '1h 12m'
-      }]
+    data: []
   }
 
   render() {

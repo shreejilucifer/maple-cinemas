@@ -6,6 +6,8 @@ import Page from '../Components/Page';
 
 import icon from '../../assets/logo.webp';
 import AuthCircles from '../Components/AuthCircles';
+import API from '../Components/Config';
+import axios from 'axios';
 
 const styles = StyleSheet.create({
   container: {
@@ -109,19 +111,62 @@ export default class LoginScreen extends PureComponent {
   state = {
     email: '',
     password: '',
+    error: ''
   };
 
   onChangeLoginForm = (choice, value) => {
     switch (choice) {
       case 'email':
         this.setState({ email: value });
-        console.log(this.state.email);
         break;
       case 'password':
         this.setState({ password: value });
         break;
       default:
         console.log('Invalid Login Form Entry');
+    }
+  };
+
+  onSubmitLoginForm = (email, password, navigation) => {
+    var emailValid = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/;
+
+    if (this.state.email === "" || this.state.password === "") {
+      this.setState({
+        error: "Email or Password Cannot Be Empty"
+      });
+    } else if( emailValid.test(this.state.email) === false ) {
+      this.setState({
+        error: "Email Invalid"
+      });
+    } else {
+
+      var settings = {
+        url: API + "/auth/login",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: {
+          email: email,
+          password: password
+        }
+      };
+
+      axios( settings )
+      .then( (res) => {
+        if( res.data.status === false ) {
+          this.setState({ error: res.data.message.error });
+        } else {
+          this.setState({ error: "" });
+          navigation.navigate('App');
+        }
+      })
+      .catch( (err) => {
+        this.setState({ error: "Try Again Later" });
+        console.log( err );
+      });
+
+
     }
   };
 
@@ -133,8 +178,8 @@ export default class LoginScreen extends PureComponent {
           <View
             style={{
               flex: 1,
-              flexDirection: 'column',
-              justifyContent: 'space-around',
+              flexDirection: "column",
+              justifyContent: "space-around"
             }}
           >
             <View style={styles.titleContainer}>
@@ -150,45 +195,57 @@ export default class LoginScreen extends PureComponent {
               <Text style={styles.loginFormLabel}>EMAIL ID</Text>
               <TextInput
                 value={this.state.email}
-                onChangeText={text => this.onChangeLoginForm('email', text)}
+                onChangeText={text => this.onChangeLoginForm("email", text)}
                 style={styles.loginFormInput}
               />
-              <View style={{ marginTop: 20 }}></View>
+              <View style={{ marginTop: 20 }} />
               <Text style={styles.loginFormLabel}>PASSWORD</Text>
               <TextInput
                 value={this.state.password}
-                onChangeText={text => this.onChangeLoginForm('password', text)}
+                secureTextEntry
+                onChangeText={text =>
+                  this.onChangeLoginForm("password", text)
+                }
                 style={styles.loginFormInput}
               />
-              <View style={{ marginTop: 20 }}></View>
-              <TouchableOpacity onPress={()=>{
-                this.props.navigation.navigate('ForgetPass')
-              }} >
+              {this.state.error !== "" ? (
+                <>
+                  <View style={{ marginTop: 20 }} />
+                  <Text style={{ textAlign: 'center', color: 'red' }}>{this.state.error}</Text>
+                </>
+              ) : null}
+
+              <View style={{ marginTop: 20 }} />
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate("ForgetPass");
+                }}
+              >
                 <Text style={styles.forgetPassText}>Forgot password?</Text>
               </TouchableOpacity>
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                  onPress={()=>{
-                    this.props.navigation.navigate('App');
+                  onPress={() => {
+                    this.onSubmitLoginForm(this.state.email, this.state.password, this.props.navigation);
                   }}
-                  style={{width: '80%'}}
+                  style={{ width: "80%" }}
                 >
                   <LinearGradient
                     style={styles.loginButton}
                     start={[0.5, 0.5]}
-                    colors={['#0c4ca8ff', '#3062efff']}
+                    colors={["#0c4ca8ff", "#3062efff"]}
                   >
                     <Text style={styles.loginButtonText}>Login</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
               <View style={styles.signupContainer}>
-                <Text style={styles.newHereText}>
-                  New Here ?
-                </Text>
-                <TouchableOpacity onPress={()=>{
-                  this.props.navigation.navigate('Register');
-                }}>
+                <Text style={styles.newHereText}>New Here ?</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.props.navigation.navigate("Register");
+                  }}
+                >
                   <Text style={styles.signupNowText}>Sign Up Now</Text>
                 </TouchableOpacity>
               </View>

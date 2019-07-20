@@ -33,7 +33,7 @@ const AppStack = createStackNavigator(
     AllMovies: AllMovieScreen
   },
   {
-    initialRouteName: 'MovieSeatBooking'
+    initialRouteName: 'Home'
   });
 
 export default createAppContainer(
@@ -43,7 +43,7 @@ export default createAppContainer(
       App: AppStack
     },
     {
-      initialRouteName: 'App',
+      initialRouteName: 'Auth',
     }
   )
 );

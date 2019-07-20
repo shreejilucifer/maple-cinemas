@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Text, View } from 'react-native';
 import * as Font from 'expo-font';
 import * as Permissions from "expo-permissions";
+import { DoubleBounce } from "react-native-loader";
 
 export default class Page extends PureComponent {
   state = {
@@ -30,8 +31,8 @@ export default class Page extends PureComponent {
     if (this.state.fontLoaded && this.state.granted)
       return <React.Fragment>{this.props.children}</React.Fragment>;
     return (
-      <View>
-        <Text>Loading...</Text>
+      <View style={{ flex: 1, height: "100%", width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+        <DoubleBounce size={10} color="#1CAFF6" />
       </View>
     );
   }
