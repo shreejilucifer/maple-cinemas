@@ -7,6 +7,9 @@ import screen from '../../assets/screen.webp';
 import legend from '../../assets/legend.webp';
 import ticket from '../../assets/ticket.webp';
 import nextbluebtn from '../../assets/nextbluebtn.webp';
+import axios from 'axios';
+import API from '../Components/Config';
+import { DoubleBounce } from 'react-native-loader';
 
 const Data = props => (
   <View style={styles.dataContainer}>
@@ -46,19 +49,36 @@ class Seats extends PureComponent {
     seats: [],
     seatAvailable: [],
     seatReserved: [],
+    loading: true
   }
 
   componentDidMount() {
 
-    for( var i=1; i<100; i++) seatMap.push(i.toString());
+    for (var i = 1; i < 100; i++) seatMap.push(i.toString());
 
+    var settings = {
+      url: API + "/get/theater/" + this.props.selectedShow._id,
+      method: "GET",
+    };
 
-    this.setState({
-      seats: seatMap,
-      seatAvailable: ["1", "2", "3", "5", "7", "25", "26"]
-    });
+    axios( settings )
+    .then( (res) => {
+      const shows = res.data.data.shows ;
+      const myshow = shows.filter( (show) => show.time == this.props.selectedShow.time );
 
-    console.log( this.state.seats );
+      const avail = seatMap.filter(el => !myshow[0].bookedseates.includes(el));
+
+      this.setState({
+        loading: false,
+        seats: seatMap,
+        seatAvailable: avail
+      });
+
+    })
+    .catch( err => {
+      console.log( err );
+    })
+
   }
 
   onClickSeat(seat) {
@@ -78,10 +98,12 @@ class Seats extends PureComponent {
   }
 
   render() {
+    if( this.state.loading ) return <DoubleBounce size={10} />
+    else
     return (
-      <View style={styles.seatContainer}>
-        {
-          this.state.seats.map( (seat, index) => {
+      <>
+        <View style={styles.seatContainer}>
+          {this.state.seats.map((seat, index) => {
             return (
               <React.Fragment key={index}>
                 {this.state.seatReserved.includes(seat) ? (
@@ -89,9 +111,7 @@ class Seats extends PureComponent {
                     onPress={() => this.onClickSeat(seat)}
                     style={styles.seatTouch}
                   >
-                    <View
-                      style={styles.seatActualContainerReserved}
-                    />
+                    <View style={styles.seatActualContainerReserved} />
                   </TouchableOpacity>
                 ) : this.state.seatAvailable.includes(seat) ? (
                   <TouchableOpacity
@@ -102,16 +122,21 @@ class Seats extends PureComponent {
                   </TouchableOpacity>
                 ) : (
                   <View style={styles.seatTouch}>
-                    <View
-                      style={styles.seatActualContainerNotAvailable}
-                    />
+                    <View style={styles.seatActualContainerNotAvailable} />
                   </View>
                 )}
               </React.Fragment>
             );
-          })
-        }
-      </View>
+          })}
+        </View>
+        <BottomTab
+          numTicket={this.state.seatReserved.length}
+          money={this.state.seatReserved.length * 10}
+          onNext={() => {
+            this.props.navigation.navigate("ThankYou");
+          }}
+        />
+      </>
     );
   }
 }
@@ -121,28 +146,30 @@ export default class MovieSeatBookingScreen extends PureComponent {
     header: null,
   };
 
-  state = {
-    img: 'http://cdn.collider.com/wp-content/uploads/2018/04/ant-man-and-the-wasp-poster.jpg'
-  }
-
   render() {
+    const movie = this.props.navigation.getParam("movie", {});
+    const selectedDate = this.props.navigation.getParam("selectedDate", "");
+    const selectedTime = this.props.navigation.getParam("selectedTime", "");
+    const selectedTheatre = this.props.navigation.getParam("selectedTheatre", {});
+    const selectedShow = this.props.navigation.getParam("selectedShow", {});
+
     return (
       <Page>
         <View style={styles.container}>
           <Image
-            source={{ uri: this.state.img }}
+            source={{ uri: movie.imgurl }}
             style={styles.moviePoster}
           />
           <BackBtn
             onBack={() => {
-              this.props.navigation.navigate("Movie");
+              this.props.navigation.navigate("Movie", { movie: movie });
             }}
           />
           <Data
-            title="Ant Man and The Wasp"
-            date="FRIDAY, 12"
-            time="09:30 AM"
-            theatre="Sathyam Cinemas: Royapettah"
+            title={movie.name}
+            date={selectedDate}
+            time={selectedTime}
+            theatre={selectedTheatre.name}
           />
           <View style={styles.screenContainer}>
             <Image source={legend} />
@@ -150,8 +177,7 @@ export default class MovieSeatBookingScreen extends PureComponent {
           <View style={styles.screenContainer}>
             <Image source={screen} />
           </View>
-          <Seats />
-          <BottomTab numTicket={2} money={2*10} onNext={()=>console.log("Next")}/>
+          <Seats selectedShow={selectedShow} navigation={this.props.navigation}/>
         </View>
       </Page>
     );

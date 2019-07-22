@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Text, View, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Image, TextInput, TouchableOpacity, AsyncStorage } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import Page from '../Components/Page';
@@ -127,6 +127,10 @@ export default class LoginScreen extends PureComponent {
     }
   };
 
+  storeToken = async (token) => {
+      await AsyncStorage.setItem('userToken', token );
+  }
+
   onSubmitLoginForm = (email, password, navigation) => {
     var emailValid = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/;
 
@@ -158,6 +162,7 @@ export default class LoginScreen extends PureComponent {
           this.setState({ error: res.data.message.error });
         } else {
           this.setState({ error: "" });
+          this.storeToken(res.data.data.token);
           navigation.navigate('App');
         }
       })

@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions, Picker } from 'react-native';
 import Page from '../Components/Page';
 import star from '../../assets/star.webp';
 import duration from '../../assets/duration.webp';
@@ -46,12 +46,14 @@ export default class MovieScreen extends PureComponent {
   };
 
   state = {
-    selectedDate: "",
+    selectedDate: "2019-07-22",
     selectedTime: "",
-    img: 'http://cdn.collider.com/wp-content/uploads/2018/04/ant-man-and-the-wasp-poster.jpg'
+    selectedShow: {}
   }
 
   render() {
+    const movie = this.props.navigation.getParam("movie", {});
+
     return (
       <Page>
         <ScrollView
@@ -59,47 +61,75 @@ export default class MovieScreen extends PureComponent {
           contentContainerStyle={{ alignItems: "center" }}
         >
           <Image
-            source={{ uri: this.state.img }}
+            source={{ uri: movie.imgurl }}
             style={styles.moviePoster}
           />
-          <BackBtn onBack={() => {
-            this.props.navigation.navigate('Home');
-          }} />
-          <MovieDetails
-            title="Ant Man and the Wasp"
-            stars="4.9"
-            duration="111 mins"
-            imax="Imax3D"
-            synopsis="Scott Lang is grappling with the consequences of his choices as both a superhero and a father. Approached by Hope van Dyne and Dr. Hank Pym, Lang must once again don …"
+          <BackBtn
+            onBack={() => {
+              this.props.navigation.navigate("Home");
+            }}
           />
-          <View>
-            <Text>Selected Date: {this.state.selectedDate} </Text>
-            <Text>Selected Time: {this.state.selectedTime} </Text>
-          </View>
-          <View style={styles.datepickerContainer}>
-            <HorizontalDatePicker
-              pickerType={"date"}
-              onDateSelected={date => {
-                this.setState({ selectedDate: date });
-              }}
-            />
-          </View>
-          <View style={styles.datepickerContainer}>
-            <Text style={styles.cinemaName}>
-              Sathyam Cinemas: Royapettah
-            </Text>
-            <HorizontalDatePicker
-              pickerType={"time"}
-              onTimeSelected={time => {
-                this.setState({ selectedTime: time });
-              }}
-            />
-          </View>
+          <MovieDetails
+            title={movie.name}
+            stars={movie.rating}
+            duration={movie.duration + " mins"}
+            imax={movie.type}
+            synopsis={movie.description}
+          />
+          {movie.schedule.map(sc => (
+            <React.Fragment key={sc._id}>
+              <View style={styles.datepickerContainer}>
+                <Text style={styles.datepickerText}>
+                  {sc.date.slice(0, 10)}
+                </Text>
+              </View>
+
+              {sc.theaters.map(t => (
+                <View key={t._id} style={styles.cinemaNameContainer}>
+                  <Text style={styles.cinemaName}>{t.name}</Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      width: "100%",
+                      alignItems: "center",
+                      marginLeft: 10
+                    }}
+                  >
+                    <Text>Select Show Time</Text>
+                    <Picker
+                      mode="dialog"
+                      selectedValue={this.state.selectedTime}
+                      style={styles.timePicker}
+                      onValueChange={(itemValue, itemIndex) =>
+                        this.setState({ selectedTime: itemValue, selectedShow: t.shows[itemIndex] })
+                      }
+                    >
+                      {t.shows.map(show => (
+                        <Picker.Item
+                          key={show._id}
+                          label={show.time}
+                          value={show.time}
+                        />
+                      ))}
+                    </Picker>
+                  </View>
+                </View>
+              ))}
+            </React.Fragment>
+          ))}
         </ScrollView>
         <View style={styles.nextbtn}>
-          <TouchableOpacity onPress={()=>{
-            this.props.navigation.navigate('MovieSeatBooking');
-          }}>
+          <TouchableOpacity
+            onPress={() => {
+              this.props.navigation.navigate("MovieSeatBooking", {
+                movie: movie,
+                selectedDate: this.state.selectedDate,
+                selectedTime: this.state.selectedTime,
+                selectedTheatre: movie.schedule[0].theaters[0],
+                selectedShow: this.state.selectedShow
+              });
+            }}
+          >
             <Image source={nextbluebtn} />
           </TouchableOpacity>
         </View>
@@ -124,7 +154,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#000"
   },
   movieDetailsContainer: {
-    width: "80%",
+    width: "85%",
     shadowColor: "rgba(0, 0, 0, 0.1)",
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 60,
@@ -205,7 +235,30 @@ const styles = StyleSheet.create({
     fontWeight: "600"
   },
   datepickerContainer: {
-    marginTop: 20
+    marginTop: 20,
+    flexDirection: "column",
+    backgroundColor: "#ffffff",
+    borderRadius: 9,
+    borderStyle: "solid",
+    borderColor: "#5880ec",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  datepickerText: {
+    color: "#212224",
+    fontFamily: "Montserrat Semi Bold",
+    fontSize: 18,
+    fontWeight: "600",
+    letterSpacing: -0.5,
+    padding: 5
+  },
+  cinemaNameContainer: {
+    marginTop: 20,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    width: "100%"
   },
   cinemaName: {
     color: "#5c5c5c",
@@ -215,10 +268,22 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginBottom: 5
   },
+  timePicker: {
+    width: "40%",
+    marginTop: 5,
+    marginLeft: 10,
+    marginRight: 10,
+    height: 26,
+    backgroundColor: "#dfdfdf",
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "#5880ec",
+    borderRadius: 10,
+  },
   nextbtn: {
-    position: 'absolute',
+    position: "absolute",
     zIndex: 2,
     marginTop: viewportHeight - 100,
-    right: 5,
+    right: 5
   }
 });

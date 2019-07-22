@@ -20,14 +20,11 @@ export default class Navbar extends PureComponent {
 
     let location = await Location.getCurrentPositionAsync({});
 
-    console.log( location.coords.latitude );
-    console.log( location.coords.longitude );
-
      let more = await Location.reverseGeocodeAsync({
        latitude: location.coords.latitude,
        longitude: location.coords.longitude
      });
-     console.log( more );
+
     this.setState({ location, city: more[0].city });
   };
 

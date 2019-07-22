@@ -13,6 +13,7 @@ import HomeScreen from './src/Pages/HomeScreen';
 import MovieScreen from './src/Pages/MovieScreen';
 import MovieSeatBookingScreen from './src/Pages/MovieSeatBookingScreen';
 import AllMovieScreen from './src/Pages/AllMovieScreen';
+import ThankyouScreen from './src/Pages/ThankyouScreen';
 
 const AuthStack = createStackNavigator(
   {
@@ -30,7 +31,8 @@ const AppStack = createStackNavigator(
     Home: HomeScreen,
     Movie: MovieScreen,
     MovieSeatBooking: MovieSeatBookingScreen,
-    AllMovies: AllMovieScreen
+    AllMovies: AllMovieScreen,
+    ThankYou: ThankyouScreen
   },
   {
     initialRouteName: 'Home'

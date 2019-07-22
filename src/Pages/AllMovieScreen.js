@@ -2,57 +2,23 @@ import React, { PureComponent } from 'react'
 import { Text, View, StyleSheet, TextInput, FlatList, Image } from "react-native";
 import Page from '../Components/Page';
 import Navbar from '../Components/Navbar';
+import axios from 'axios';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export default class AllMovieScreen extends PureComponent {
   static navigationOptions = {
     header: null,
   };
 
-    _keyExtractor = (item, index) => item.id;
-
-  _renderItem = ({ item }) => (
-    <View key={item.id} style={styles.singleMovieContainer}>
-      <Image source={{uri: item.img }} style={styles.movieImage} />
-      <Text style={styles.movieName}>{item.name}</Text>
-      <Text style={styles.movieDuration}>{item.duration}</Text>
-    </View>
-  );
-
   state = {
-    data: [{
-      id: '1',
-      img: 'http://cdn.collider.com/wp-content/uploads/2018/04/ant-man-and-the-wasp-poster.jpg',
-      name: 'Jurassic World',
-      duration: '1h 12m'
-    }, {
-        id: '2',
-        img: 'https://images-na.ssl-images-amazon.com/images/I/A1t8xCe9jwL._SY679_.jpg',
-        name: 'Jurassic World',
-        duration: '1h 12m'
-      }, {
-        id: '3',
-        img: 'http://cdn.collider.com/wp-content/uploads/2018/04/ant-man-and-the-wasp-poster.jpg',
-        name: 'Jurassic World',
-        duration: '1h 12m'
-      }, {
-        id: '4',
-        img: 'https://images-na.ssl-images-amazon.com/images/I/A1t8xCe9jwL._SY679_.jpg',
-        name: 'Jurassic World',
-        duration: '1h 12m'
-      }, {
-        id: '5',
-        img: 'http://cdn.collider.com/wp-content/uploads/2018/04/ant-man-and-the-wasp-poster.jpg',
-        name: 'Jurassic World',
-        duration: '1h 12m'
-      }, {
-        id: '6',
-        img: 'https://images-na.ssl-images-amazon.com/images/I/A1t8xCe9jwL._SY679_.jpg',
-        name: 'Jurassic World',
-        duration: '1h 12m'
-      }]
+    movies: []
   }
 
   render() {
+
+    const movies = this.props.navigation.getParam("movies", []);
+    console.log( movies[0].imgurl );
+
     return (
       <Page>
         <View style={styles.container}>
@@ -71,23 +37,31 @@ export default class AllMovieScreen extends PureComponent {
           <Text style={styles.allMoviesTitle}>All Movies</Text>
           <View style={styles.allMovieContainer}>
             {
-              this.state.data.map( (item) => {
+              movies.map( (item, index) => {
                 return (
-                  <View
-                    key={item.id}
-                    style={styles.singleMovieContainer}
+                  <TouchableOpacity
+                    key={item._id}
+                    onPress={() => {
+                      this.props.navigation.navigate("Movie", {
+                        movie: item
+                      });
+                    }}
                   >
-                    <Image
-                      source={{ uri: item.img }}
-                      style={styles.movieImage}
-                    />
-                    <Text style={styles.movieName}>
-                      {item.name}
-                    </Text>
-                    <Text style={styles.movieDuration}>
-                      {item.duration}
-                    </Text>
-                  </View>
+                    <View style={styles.singleMovieContainer}>
+                      <Image
+                        source={{
+                          uri: item.imgurl
+                        }}
+                        style={styles.movieImage}
+                      />
+                      <Text style={styles.movieName}>
+                        {item.name}
+                      </Text>
+                      <Text style={styles.movieDuration}>
+                        {item.duration + " mins"}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
                 );
               })
             }
@@ -130,10 +104,10 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
     flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    width: '100%',
-    marginTop: 20,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: "100%",
+    marginTop: 20
   },
   movieImage: {
     height: 120,
@@ -142,14 +116,15 @@ const styles = StyleSheet.create({
   },
   singleMovieContainer: {
     marginRight: 10,
-    marginTop: 10,
+    marginTop: 10
   },
   movieName: {
     marginTop: 5,
     color: "#4a4e52",
     fontFamily: "Montserrat Medium",
     fontSize: 10,
-    fontWeight: "500"
+    fontWeight: "500",
+    width: 83
   },
   movieDuration: {
     color: "#4a4e52",
