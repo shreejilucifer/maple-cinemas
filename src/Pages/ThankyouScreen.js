@@ -11,7 +11,7 @@ export default class ThankyouScreen extends Component {
     return (
       <Page>
         <View style={styles.container}>
-          <Text>Thank You ! 😊 </Text>
+          <Text>Thank You ! 😊</Text>
           <TouchableOpacity onPress={()=>{
             this.props.navigation.navigate('Home');
           }}>

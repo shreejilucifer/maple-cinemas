@@ -45,7 +45,7 @@ export default createAppContainer(
       App: AppStack
     },
     {
-      initialRouteName: 'Auth',
+      initialRouteName: 'App',
     }
   )
 );

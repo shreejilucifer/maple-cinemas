@@ -11,7 +11,8 @@ export default class AllMovieScreen extends PureComponent {
   };
 
   state = {
-    movies: []
+    movies: [],
+    search: ""
   }
 
   render() {
@@ -30,13 +31,16 @@ export default class AllMovieScreen extends PureComponent {
           />
           <TextInput
             style={styles.searchBar}
-            onChangeText={text => console.log(text)}
+            onChangeText={text => {
+              this.setState({search: text});
+            }}
             placeholder="Search movies or theatres"
             placeholderTextColor="#868e96"
           />
           <Text style={styles.allMoviesTitle}>All Movies</Text>
           <View style={styles.allMovieContainer}>
             {
+              (this.state.search === "")?
               movies.map( (item, index) => {
                 return (
                   <TouchableOpacity
@@ -64,6 +68,34 @@ export default class AllMovieScreen extends PureComponent {
                   </TouchableOpacity>
                 );
               })
+                :
+              movies.filter( (movie) => {
+                return movie.name.includes(this.state.search);
+              }).map( (item, index) => (
+                  <TouchableOpacity
+                    key={item._id}
+                    onPress={() => {
+                      this.props.navigation.navigate("Movie", {
+                        movie: item
+                      });
+                    }}
+                  >
+                    <View style={styles.singleMovieContainer}>
+                      <Image
+                        source={{
+                          uri: item.imgurl
+                        }}
+                        style={styles.movieImage}
+                      />
+                      <Text style={styles.movieName}>
+                        {item.name}
+                      </Text>
+                      <Text style={styles.movieDuration}>
+                        {item.duration + " mins"}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))
             }
           </View>
         </View>
