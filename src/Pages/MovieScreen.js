@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions, Picker } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions, Picker, Alert } from 'react-native';
 import Page from '../Components/Page';
 import star from '../../assets/star.webp';
 import duration from '../../assets/duration.webp';
 import imax from '../../assets/imax.webp';
 import nextbluebtn from '../../assets/nextbluebtn.webp';
-import HorizontalDatePicker from '@logisticinfotech/react-native-horizontal-date-picker';
 import BackBtn from '../Components/BackBtn';
 
 const { width: viewportWidth, height: viewportHeight } = Dimensions.get(
@@ -121,13 +120,22 @@ export default class MovieScreen extends PureComponent {
         <View style={styles.nextbtn}>
           <TouchableOpacity
             onPress={() => {
-              this.props.navigation.navigate("MovieSeatBooking", {
-                movie: movie,
-                selectedDate: this.state.selectedDate,
-                selectedTime: this.state.selectedTime,
-                selectedTheatre: movie.schedule[0].theaters[0],
-                selectedShow: this.state.selectedShow
-              });
+              if (this.state.selectedTime === "") {
+                Alert.alert("Incomplete", "Please Select Show Time");
+              } else {
+                this.props.navigation.navigate(
+                  "MovieSeatBooking",
+                  {
+                    movie: movie,
+                    selectedDate: this.state.selectedDate,
+                    selectedTime: this.state.selectedTime,
+                    selectedTheatre:
+                      movie.schedule[0].theaters[0],
+                    selectedShow: this.state.selectedShow
+                  }
+                );
+              }
+
             }}
           >
             <Image source={nextbluebtn} />

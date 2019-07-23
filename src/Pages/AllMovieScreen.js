@@ -18,7 +18,6 @@ export default class AllMovieScreen extends PureComponent {
   render() {
 
     const movies = this.props.navigation.getParam("movies", []);
-    console.log( movies[0].imgurl );
 
     return (
       <Page>

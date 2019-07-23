@@ -1,14 +1,15 @@
 import React, { PureComponent } from 'react'
-import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native'
+import { Text, View, StyleSheet, Image, TouchableOpacity, AsyncStorage } from 'react-native'
 import Page from '../Components/Page';
 import BackBtn from '../Components/BackBtn';
-const seatMap = [];
+
 import screen from '../../assets/screen.webp';
 import legend from '../../assets/legend.webp';
 import ticket from '../../assets/ticket.webp';
 import nextbluebtn from '../../assets/nextbluebtn.webp';
 import axios from 'axios';
 import API from '../Components/Config';
+import seatMap from '../Components/SeatMap';
 import { DoubleBounce } from 'react-native-loader';
 
 const Data = props => (
@@ -50,94 +51,134 @@ class Seats extends PureComponent {
     seatAvailable: [],
     seatReserved: [],
     loading: true
-  }
+  };
 
   componentDidMount() {
 
-    for (var i = 1; i < 100; i++) seatMap.push(i.toString());
-
     var settings = {
       url: API + "/get/theater/" + this.props.selectedShow._id,
-      method: "GET",
+      method: "GET"
+    };
+
+    axios(settings)
+      .then(res => {
+        const shows = res.data.data.shows;
+        const myshow = shows.filter(
+          show => show.time == this.props.selectedShow.time
+        );
+
+        const avail = seatMap.filter(
+          el => !myshow[0].bookedseates.includes(el)
+        );
+
+        this.setState({
+          loading: false,
+          seats: seatMap,
+          seatAvailable: avail
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  onClickSeat(seat) {
+    if (this.state.seatReserved.indexOf(seat) > -1) {
+      this.setState({
+        seatAvailable: this.state.seatAvailable.concat(seat),
+        seatReserved: this.state.seatReserved.filter(res => res != seat)
+      });
+    } else {
+      this.setState({
+        seatReserved: this.state.seatReserved.concat(seat),
+        seatAvailable: this.state.seatAvailable.filter(res => res != seat)
+      });
+    }
+  }
+
+  onSubmitBooking = async (reserved, selectedTheatre, movie, showTime, payment, navigation ) => {
+
+    const userToken = await AsyncStorage.getItem('userToken');
+
+    var settings = {
+      async: true,
+      crossDomain: true,
+      url: API + "/add/book",
+      method: "POST",
+      headers: {
+        token: userToken,
+        "Content-Type": "application/json",
+      },
+      data: {
+        seats: reserved,
+        payment: payment,
+        theater: selectedTheatre._id,
+        movie: movie._id,
+        showtime: showTime
+      }
     };
 
     axios( settings )
     .then( (res) => {
-      const shows = res.data.data.shows ;
-      const myshow = shows.filter( (show) => show.time == this.props.selectedShow.time );
-
-      const avail = seatMap.filter(el => !myshow[0].bookedseates.includes(el));
-
-      this.setState({
-        loading: false,
-        seats: seatMap,
-        seatAvailable: avail
+      console.log( res.data.data );
+      navigation.navigate("ThankYou", {
+        data: res.data.data
       });
-
     })
-    .catch( err => {
+    .catch( (err) => {
       console.log( err );
     })
-
-  }
-
-  onClickSeat(seat) {
-      if (this.state.seatReserved.indexOf(seat) > -1) {
-        this.setState({
-          seatAvailable: this.state.seatAvailable.concat(seat),
-          seatReserved: this.state.seatReserved.filter(res => res != seat)
-        });
-        console.log(this.state.seatReserved);
-      } else {
-        this.setState({
-          seatReserved: this.state.seatReserved.concat(seat),
-          seatAvailable: this.state.seatAvailable.filter(res => res != seat)
-        });
-        console.log(this.state.seatReserved);
-      }
   }
 
   render() {
-    if( this.state.loading ) return <DoubleBounce size={10} />
+    if (this.state.loading) return <DoubleBounce size={10} />;
     else
-    return (
-      <>
-        <View style={styles.seatContainer}>
-          {this.state.seats.map((seat, index) => {
-            return (
-              <React.Fragment key={index}>
-                {this.state.seatReserved.includes(seat) ? (
-                  <TouchableOpacity
-                    onPress={() => this.onClickSeat(seat)}
-                    style={styles.seatTouch}
-                  >
-                    <View style={styles.seatActualContainerReserved} />
-                  </TouchableOpacity>
-                ) : this.state.seatAvailable.includes(seat) ? (
-                  <TouchableOpacity
-                    onPress={() => this.onClickSeat(seat)}
-                    style={styles.seatTouch}
-                  >
-                    <View style={styles.seatActualContainer} />
-                  </TouchableOpacity>
-                ) : (
-                  <View style={styles.seatTouch}>
-                    <View style={styles.seatActualContainerNotAvailable} />
-                  </View>
-                )}
-              </React.Fragment>
-            );
-          })}
-        </View>
-        <BottomTab
-          numTicket={this.state.seatReserved.length}
-          money={this.state.seatReserved.length * 10}
-          onNext={() => {
-            this.props.navigation.navigate("ThankYou");
-          }}
-        />
-      </>
-    );
+      return (
+        <>
+          <View style={styles.seatContainer}>
+            {this.state.seats.map((seat, index) => {
+              return (
+                <React.Fragment key={index}>
+                  {this.state.seatReserved.includes(seat) ? (
+                    <TouchableOpacity
+                      onPress={() => this.onClickSeat(seat)}
+                      style={styles.seatTouch}
+                    >
+                      <View style={styles.seatActualContainerReserved} />
+                    </TouchableOpacity>
+                  ) : this.state.seatAvailable.includes(seat) ? (
+                    <TouchableOpacity
+                      onPress={() => this.onClickSeat(seat)}
+                      style={styles.seatTouch}
+                    >
+                      <View style={styles.seatActualContainer} />
+                    </TouchableOpacity>
+                  ) : (
+                    <View style={styles.seatTouch}>
+                      <View style={styles.seatActualContainerNotAvailable} />
+                    </View>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </View>
+          <BottomTab
+            numTicket={this.state.seatReserved.length}
+            money={this.state.seatReserved.length * 10}
+            onNext={() => {
+              this.onSubmitBooking(
+                this.state.seatReserved,
+                this.props.selectedTheatre,
+                this.props.movie,
+                this.props.selectedTime,
+                this.state.seatReserved.length * 10,
+                this.props.navigation
+              );
+
+            }}
+          />
+        </>
+      );
   }
 }
 
@@ -177,7 +218,13 @@ export default class MovieSeatBookingScreen extends PureComponent {
           <View style={styles.screenContainer}>
             <Image source={screen} />
           </View>
-          <Seats selectedShow={selectedShow} navigation={this.props.navigation}/>
+          <Seats
+            movie={movie}
+            selectedTheatre={selectedTheatre}
+            selectedShow={selectedShow}
+            selectedTime={selectedTime}
+            navigation={this.props.navigation}
+          />
         </View>
       </Page>
     );
