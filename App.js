@@ -2,7 +2,7 @@ import React from 'react';
 import {
   createStackNavigator,
   createAppContainer,
-  createSwitchNavigator,
+  createSwitchNavigator
 } from 'react-navigation';
 
 import LoginScreen from './src/Pages/LoginScreen';
@@ -22,7 +22,7 @@ const AuthStack = createStackNavigator(
     ForgetPass: ForgetPassScreen
   },
   {
-    initialRouteName: 'Login',
+    initialRouteName: 'Login'
   }
 );
 
@@ -36,7 +36,8 @@ const AppStack = createStackNavigator(
   },
   {
     initialRouteName: 'Home'
-  });
+  }
+);
 
 export default createAppContainer(
   createSwitchNavigator(
@@ -45,7 +46,7 @@ export default createAppContainer(
       App: AppStack
     },
     {
-      initialRouteName: 'Auth',
+      initialRouteName: 'App'
     }
   )
 );
