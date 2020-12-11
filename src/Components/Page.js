@@ -1,39 +1,61 @@
-import React, { PureComponent } from 'react';
-import { Text, View } from 'react-native';
-import * as Font from 'expo-font';
-import * as Permissions from "expo-permissions";
-import { DoubleBounce } from "react-native-loader";
+import React from 'react';
+import {
+	ActivityIndicator,
+	Button,
+	StyleSheet,
+	Text,
+	View,
+} from 'react-native';
+import {
+	useFonts,
+	Montserrat_600SemiBold,
+	Montserrat_400Regular,
+	Montserrat_500Medium,
+} from '@expo-google-fonts/montserrat';
+import * as Permissions from 'expo-permissions';
 
-export default class Page extends PureComponent {
-  state = {
-    fontLoaded: false,
-    granted: false
-  };
+const Page = ({ children }) => {
+	let [fontsLoaded] = useFonts({
+		Montserrat_600SemiBold,
+		Montserrat_400Regular,
+		Montserrat_500Medium,
+	});
 
-  async componentDidMount() {
-    await Font.loadAsync({
-      'Montserrat Semi Bold': require('../../assets/Fonts/Montserrat-SemiBold.ttf'),
-      'Montserrat Regular': require('../../assets/Fonts/Montserrat-Regular.ttf'),
-      'Montserrat Medium': require('../../assets/Fonts/Montserrat-Medium.ttf'),
-    });
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status === "granted") {
-      this.setState({
-        granted: true
-      });
-    }
+	const [permission, askForPermission] = Permissions.usePermissions(
+		Permissions.LOCATION,
+		{
+			ask: true,
+		}
+	);
 
-    this.setState({ fontLoaded: true });
-    console.log('Font Loaded');
-  }
+	if (!permission || permission.status !== 'granted') {
+		return (
+			<View style={styles.pageContainer}>
+				<Text>Permission is not granted</Text>
+				<Button title="Grant permission" onPress={askForPermission} />
+			</View>
+		);
+	}
 
-  render() {
-    if (this.state.fontLoaded && this.state.granted)
-      return <React.Fragment>{this.props.children}</React.Fragment>;
-    return (
-      <View style={{ flex: 1, height: "100%", width: "100%", justifyContent: 'center', alignItems: 'center' }}>
-        <DoubleBounce size={10} color="#1CAFF6" />
-      </View>
-    );
-  }
-}
+	if (!fontsLoaded) {
+		return (
+			<View style={styles.pageContainer}>
+				<ActivityIndicator size="large" />
+			</View>
+		);
+	}
+
+	return <View style={styles.pageContainer}>{children}</View>;
+};
+
+const styles = StyleSheet.create({
+	pageContainer: {
+		flex: 1,
+		height: '100%',
+		width: '100%',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+});
+
+export default Page;
